@@ -37,22 +37,15 @@ class Discojunk(Plugin, LoggingClass):
 
         return sentence
 
-    def tellsomejunk(self, event):
-        event.msg.reply(
-            self.generate_sentence(
-                self.chain,
-                words=random.randint(10, 40)
+    @Plugin.command('tellsomejunk', '[args:int]')
+    def on_tellmassjunk(self, event, args=1):
+        for i in range(args):
+            event.msg.reply(
+                self.generate_sentence(
+                    self.chain,
+                    words=random.randint(10, 40)
+                )
             )
-        )
-
-    @Plugin.command('tellsomejunk')
-    def on_tellsomejunk(self, event):
-        self.tellsomejunk(event)
-
-    @Plugin.command('tellsomejunk', '<n:int>')
-    def on_tellmassjunk(self, event, n):
-        for i in range(n):
-            self.tellsomejunk(event)
 
     @Plugin.listen('MessageCreate')
     def on_something(self, event):
