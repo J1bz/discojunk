@@ -39,6 +39,10 @@ class Discojunk(Plugin, LoggingClass):
 
     @Plugin.command('tellsomejunk', '[args:int]')
     def on_tellmassjunk(self, event, args=1):
+        if args >= 20:
+            event.msg.reply("Even me can't tell that much junk at a time ;/")
+            return
+
         for i in range(args):
             event.msg.reply(
                 self.generate_sentence(
