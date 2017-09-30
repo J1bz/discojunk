@@ -1,0 +1,7 @@
+{
+  "token": "YOUR TOKEN HERE",
+  "bot": {
+    "plugins": ["discojunk"],
+    "commands_require_mention": false
+  }
+}
