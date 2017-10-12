@@ -1,9 +1,10 @@
-import ast
 import random
 from datetime import datetime
 
 from disco.bot.plugin import Plugin
 from disco.util.logging import LoggingClass
+
+from markovish_chain import MarkovishChain
 
 
 class Discojunk(Plugin, LoggingClass):
@@ -16,40 +17,27 @@ class Discojunk(Plugin, LoggingClass):
         if 'data' not in self.junk:
             self.junk['data'] = []
 
-        with open(self.CHAIN_FILE, 'r') as fh:
-            content = fh.read()
-            self.chain = ast.literal_eval(content)
-
-    def generate_sentence(self, chain, words=20):
-        sentence = []
-        current, next_ = random.choice(list(chain.keys()))
-        for i in range(words):
-            sentence.append(next_)
-            current, next_ = next_, random.choice(chain[(current, next_)])
-            if next_ is False:
-                break
-
-        sentence = ' '.join(sentence)
-        sentence = sentence[0].capitalize() + sentence[1:]
-
-        # Should have been cleaned before, but whatever...
-        sentence = sentence.replace(' ,', ',')
-
-        return sentence
+        self.mc = MarkovishChain(
+            load_from_file=True,
+            chain_file=self.CHAIN_FILE
+        )
+        self.mc_root_nodes = list(self.mc.get_root_nodes())
 
     @Plugin.command('tellsomejunk', '[args:int]')
     def on_tellmassjunk(self, event, args=1):
-        if args >= 20:
+        if args > 20:
             event.msg.reply("Even me can't tell that much junk at a time ;/")
             return
 
+        generated_contents = []
         for i in range(args):
-            event.msg.reply(
-                self.generate_sentence(
-                    self.chain,
+            generated_contents.append(
+                self.mc.generate_sentence(
+                    self.mc_root_nodes,
                     words=random.randint(10, 40)
                 )
             )
+        event.msg.reply('\n'.join(generated_contents))
 
     @Plugin.listen('MessageCreate')
     def on_something(self, event):

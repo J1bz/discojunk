@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
 import json
-import pprint
+
+from markovish_chain import MarkovishChain
 
 
 DATA_FILE = 'storage.json'
@@ -87,30 +88,10 @@ def clean_messages(messages):
     return messages
 
 
-def generate_chain(sentences, save=False, pretty=False):
-    chain = {}
-    for words in sentences:
-        for i in range(len(words) - 2):
-            key = (words[i], words[i + 1])
-            if key in chain:
-                chain[key].append(words[i + 2])
-            else:
-                chain[key] = [words[i + 2]]
-
-    if save:
-        with open(save, 'w+') as fh:
-            if pretty:
-                fh.write(pprint.pformat(chain))
-            else:
-                fh.write(str(chain))
-            fh.write('\n')
-
-    return chain
-
-
 if __name__ == '__main__':
     messages = get_data(DATA_FILE)
     messages = clean_messages(messages)
 
     sentences = [m['words'] for m in messages]
-    chain = generate_chain(sentences, save=CHAIN_FILE, pretty=False)
+    chain = MarkovishChain(sentences=sentences, chain_file=CHAIN_FILE)
+    chain.sanitize().save(pretty=False)
